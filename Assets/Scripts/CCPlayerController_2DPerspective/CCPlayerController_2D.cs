@@ -13,8 +13,6 @@ public class CCPlayerController_2D : NetworkBehaviour
 
     private string playerDevice;
 
-    public Transform cameraPivot;
-
     public enum MovementStatus
     {
         Idle,
@@ -34,6 +32,10 @@ public class CCPlayerController_2D : NetworkBehaviour
     public float jumpForce;
     [HideInInspector]
     public float currentJumpVector;
+    private bool isJumping = false;
+    [Tooltip("The inertia level on the player's movement. Values closer to 0.1 mean they'll come to a stop faster.")]
+    [Range(0.01f, 0.1f)]
+    public float inertiaSpeed = 0.01f;
 
     [Header("Camera Control Variables")]
     public float cameraRotateSpeed;
@@ -50,11 +52,12 @@ public class CCPlayerController_2D : NetworkBehaviour
 
     //Variable for defining the Current InputVector, and using it to create a Movement Direction
     private Vector3 moveDirection = Vector3.zero;
-    private Vector2 inputVector = Vector2.zero;
-    private Vector2 cameraInputVector = Vector2.zero;
+    private float rawInputVector = 0;
+    private float inputVector = 0;
 
-    //Variable that finds the Camera
-    private Camera levelCamera;
+    //CAMERA SETUP
+    public GameObject cameraToSpawn;
+    private GameObject myCamera;
 
     //GRAVITY VARIABLES
     [Header("Gravity Variables")]
@@ -66,8 +69,7 @@ public class CCPlayerController_2D : NetworkBehaviour
     public float gravityRampUp;
     [HideInInspector]
     public float gravityMultiplier = 0;
-    [HideInInspector]
-    public bool useGravity = true;
+    private Vector3 currentGravity;
 
     //ATTACKING VARIABLES
     [Header("Attacking Variables")]
@@ -85,22 +87,28 @@ public class CCPlayerController_2D : NetworkBehaviour
     public List<GameObject> npcTargets;
 
 
-
     //This function is only ran if the player has authority over the prefab.
     public override void OnStartAuthority()
     {
+        myCamera = Instantiate(cameraToSpawn);
+        myCamera.GetComponent<CameraFollow_2D>().whoSpawnedMe = gameObject;
+
         //These components should all be disabled in the prefab. These are all components we want a player to control only on their prefab (controls, camera etc.)
         GetComponent<CCPlayerController_2D>().enabled = true;
-        GetComponentInChildren<Camera>().enabled = true;
-        GetComponentInChildren<CinemachineBrain>().enabled = true;
-        GetComponentInChildren<CinemachineVirtualCamera>().enabled = true;
+        myCamera.GetComponentInChildren<Camera>().enabled = true;
+        //GetComponentInChildren<CinemachineBrain>().enabled = true;
+        //GetComponentInChildren<CinemachineVirtualCamera>().enabled = true;
         GetComponent<PlayerInput>().enabled = true;
     }
 
     public void Awake()
     {
-        gameObject.transform.position = GameObject.FindGameObjectWithTag("SpawnPoint").transform.position;
+        /* Moving this into the OnStartAuthority() method b/c I'm not sure if it'll run properly in Awake()
+        myCamera = Instantiate(cameraToSpawn);
+        myCamera.GetComponent<CameraFollow_2D>().whoSpawnedMe = gameObject;
+        */
 
+        transform.position = new Vector3(transform.position.x, 2, 2);
 
         //Finds the PlayerInput component on the Player, without this everything explodes.
         playerInput = GetComponent<PlayerInput>();
@@ -108,40 +116,40 @@ public class CCPlayerController_2D : NetworkBehaviour
         //Gets what device the player is using.
         playerDevice = playerInput.currentControlScheme;
 
-        //Finds the main camera for the level (used for movement context)
-        //levelCamera = Camera.main;
-        //cameraPivot = levelCamera.transform.parent;
-
         //Find the CharacterController on the Player
         controller = GetComponent<CharacterController>();
     }
 
     public void SetInputVector(CallbackContext context)
     {
-        inputVector = context.ReadValue<Vector2>();
-        //Debug.Log("Current Movement InputVector" + inputVector);
-    }
-
-    public void SetCameraInputVector(CallbackContext context)
-    {
-        cameraInputVector = context.ReadValue<Vector2>();
-        Debug.Log("Current Camera InputVector" + cameraInputVector);
+        rawInputVector = context.ReadValue<float>();
     }
 
     public void OnJumpAction(CallbackContext context)
     {
         if (context.started && controller.isGrounded && currentMoveStatus != MovementStatus.Stunned)
         {
-            currentJumpVector = jumpForce;
+            gravityMultiplier = defaultGravityMultiplier;
+            isJumping = true;
+        }
+
+        if (context.canceled && !controller.isGrounded)
+        {
+            EndJumpEarly();
+        }
+
+        /* Possibility of having player hold down jump button for higher jump
+        if (context.performed && isJumping)
+        {
             gravityMultiplier = defaultGravityMultiplier;
         }
+        */
     }
 
     public void OnAttackAction(CallbackContext context)
     {
         if (context.started && currentMoveStatus != MovementStatus.Stunned)
         {
-            Debug.Log("he attac");
             animator.SetTrigger("Attacking");
 
             //This loop handles "attacking" each of the Players in range
@@ -164,7 +172,6 @@ public class CCPlayerController_2D : NetworkBehaviour
     {
         if (currentMoveStatus != MovementStatus.Stunned)
         {
-            Debug.Log("Stone cold stunner");
             currentMoveStatus = MovementStatus.Stunned;
             animator.SetBool("isStunned", true);
             Invoke("StunEnds", stunDuration);
@@ -173,71 +180,30 @@ public class CCPlayerController_2D : NetworkBehaviour
 
     public void StunEnds()
     {
-        Debug.Log("Wake up jeff");
         currentMoveStatus = MovementStatus.Idle;
         animator.SetBool("isStunned", false);
     }
 
     public void Update()
     {
-        // *** PLAYER MOVEMENT AND ROTATION *** //
+        inputVector = Mathf.Lerp(inputVector, rawInputVector, inertiaSpeed);
 
-        //Sets the player's horizontal movement direction using the input vector from the Player's Input
-        moveDirection = new Vector3(inputVector.x, 0, 0);
-
-        //Uses a modified variable of moveDirection to also calculate what direction the player should be facing.
-        var rotationVector = moveDirection;
-        //Adjusts the moveDirectoin based on the angle of the Main Camera.
-        //moveDirection = Quaternion.Euler(0, levelCamera.gameObject.transform.eulerAngles.y, 0) * moveDirection;
-
-        //Adjusts the rotationVector based on the angle of the level camera.
-        rotationVector = Quaternion.Euler(0, 0, 0) * rotationVector;
-        
-        //Gets the final value for use with the TurnPlayer() function.
-        //rotationVector *= maxMoveSpeed;
-
-        //Uses one final value, labelled 'rotation' which is reset each time Update() is called to prevent the player from spinning out like a Beyblade.
-        Quaternion rotation = Quaternion.Euler(0, 0, 0);
-        if (rotationVector != Vector3.zero)
-            rotation = Quaternion.LookRotation(rotationVector);
-        
-        //TurnPlayer is only called when there is still new input coming from the player, thus keeping the player from turning back to 0 bearing.
-        if (inputVector != new Vector2(0, 0))
-            TurnPlayer(rotation);
-
-
-        //Updates the state of the Player based on the strength of the InputVector
-        //Firstly, determines if either inputVector.x or .y are negative, and turns them into positives.
-        var inputX = inputVector.x;
+        float inputX = inputVector;
         if (inputX < 0)
             inputX *= -1;
-
-        var inputY = inputVector.y;
-        if (inputY < 0)
-            inputY *= -1;
-
-        //Secondly, determines whether input X or Y is higher, if they are tied, defaults to X
-        var highestInput = 0f;
-        if (inputX >= inputY)
-            highestInput = inputX;
-        else
-            highestInput = inputY;
 
         //And Thirdly, uses the higher of the two input values to determine the blend tree's threshold
         if (currentMoveStatus != MovementStatus.Stopping && currentMoveStatus != MovementStatus.Falling && currentMoveStatus != MovementStatus.Stunned)
         {
             currentMoveStatus = MovementStatus.Moving;
             animator.SetInteger("MovementState", (int)currentMoveStatus);
-            animator.SetFloat("InputVector", (float)highestInput);
+            animator.SetFloat("InputVector", (float)inputX);
         }
 
-        //Adds the max move speed value on the player prefab
-        moveDirection *= maxMoveSpeed;
-
-        if (useGravity)
-        {
-            moveDirection += (Physics.gravity * gravityMultiplier) * Time.deltaTime;
-        }
+        //if (/* Put something here later for walljumping and the like*/)
+        //{
+        //    currentGravity = (Physics.gravity * gravityMultiplier) * Time.deltaTime;
+        //}
 
         if (currentMoveStatus == MovementStatus.Falling || currentMoveStatus == MovementStatus.Stunned)
         {
@@ -253,12 +219,13 @@ public class CCPlayerController_2D : NetworkBehaviour
         }
 
         // *** STATE CHECKS *** //
-        if (controller.isGrounded && highestInput > 0 && currentMoveStatus != MovementStatus.Stunned)
+
+        if (controller.isGrounded && inputX > 0 && currentMoveStatus != MovementStatus.Stunned)
         {
             currentMoveStatus = MovementStatus.Moving;
         }
 
-        else if (!controller.isGrounded && moveDirection.y < 0 && currentMoveStatus != MovementStatus.Stunned)
+        else if (!controller.isGrounded && /*moveDirection.y < 0 && */ currentMoveStatus != MovementStatus.Stunned)
         {
             currentMoveStatus = MovementStatus.Falling;
         }
@@ -268,42 +235,18 @@ public class CCPlayerController_2D : NetworkBehaviour
             currentMoveStatus = MovementStatus.Idle;
         }
 
-        //If the Player is stunned, prevents them from moving
-        if (currentMoveStatus == MovementStatus.Stunned)
-        {
-            moveDirection = new Vector3(0, moveDirection.y, 0);
-        }
-
         // *** END STATE CHECKS *** //
 
-        // *** JUMP VECTOR UPDATE *** //
-
-        if (currentJumpVector > 0)
-        {
-            moveDirection.y += Mathf.Sqrt(currentJumpVector * -3.0f * Physics.gravity.y);
-        }
-
-        if (moveDirection.y < 0)
-            currentJumpVector = 0;
-
-        // *** END JUMP VECTOR *** //
-
-        //Calls the Move() function on the Character Controller
-        controller.Move(moveDirection * Time.deltaTime);
-
-        // *** CAMERA ROTATION *** //
-
-        //cameraPivot.Rotate(new Vector3(0, cameraInputVector.x * cameraRotateSpeed, 0));
-
-        // *** CAMERA ROTATION ENDS *** //
+        //Has the script calculate the direction the player needs to move in
+        CalculateMovement();
 
         // *** ANIMATOR STATE SETTINGS *** //
 
         animator.SetInteger("MovementState", (int)currentMoveStatus);
 
         //Slows down animation speeds if highestInput is below the threshhold
-        if (highestInput <= 0.5f && currentMoveStatus != MovementStatus.Idle && currentMoveStatus != MovementStatus.Stunned)
-            animator.speed = highestInput * 2;
+        if (inputX <= 0.5f && currentMoveStatus != MovementStatus.Idle && currentMoveStatus != MovementStatus.Stunned)
+            animator.speed = inputX * 2;
         else
             animator.speed = 1;
     }
@@ -312,8 +255,8 @@ public class CCPlayerController_2D : NetworkBehaviour
     public void TurnPlayer(Quaternion rotation)
     {
         if (currentMoveStatus != MovementStatus.Stopping)
-        //Rotates the Player to face the value of the rotation variable.
-        gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, rotation, (turnSpeed * Time.deltaTime));
+            //Rotates the Player to face the value of the rotation variable.
+            gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, rotation, (turnSpeed * Time.deltaTime));
     }
 
     public void OnTriggerEnter(Collider other)
@@ -330,6 +273,68 @@ public class CCPlayerController_2D : NetworkBehaviour
         if (other.tag == "Player")
         {
             playerTargets.Remove(other.gameObject);
+        }
+    }
+
+    public void CalculateMovement()
+    {
+
+
+        //Sets the player's horizontal movement direction using the input vector from the Player's Input
+        moveDirection.x = (inputVector * maxMoveSpeed);
+
+        //Uses a modified variable of moveDirection to also calculate what direction the player should be facing.
+        var rotationVector = new Vector3(moveDirection.x, 0, 0);
+
+        //Gets the final value for use with the TurnPlayer() function.
+        rotationVector *= maxMoveSpeed;
+
+        //Uses one final value, labelled 'rotation' which is reset each time Update() is called to prevent the player from spinning out like a Beyblade.
+        Quaternion rotation = Quaternion.Euler(0, 0, 0);
+        if (rotationVector != Vector3.zero)
+            rotation = Quaternion.LookRotation(rotationVector);
+
+        //TurnPlayer is only called when there is still new input coming from the player, thus keeping the player from turning back to 0 bearing.
+        if (rawInputVector != 0)
+            TurnPlayer(rotation);
+
+        if (controller.isGrounded)
+        {
+            if (isJumping)
+            {
+                moveDirection.y = jumpForce;
+                isJumping = false; //Remove me later if you try to add extended jumping
+            }
+        }
+        else
+        {
+            currentGravity = moveDirection - (Physics.gravity * gravityMultiplier);
+            moveDirection.y -= currentGravity.y * Time.deltaTime;
+        }
+
+        //If the Player is stunned, prevents them from moving
+        if (currentMoveStatus == MovementStatus.Stunned)
+        {
+            moveDirection = new Vector3(0, moveDirection.y, 0);
+        }
+
+        //Debug.Log(moveDirection);
+        controller.Move(moveDirection * Time.deltaTime);
+    }
+
+    public void EndJumpEarly()
+    {
+        if (moveDirection.y < 2)
+            return;
+        else
+            moveDirection.y = 2;
+    }
+
+    public void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.moveDirection.y > 2.2)
+        {
+            EndJumpEarly();
         }
     }
 }

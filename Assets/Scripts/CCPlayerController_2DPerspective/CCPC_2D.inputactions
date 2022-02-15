@@ -9,16 +9,7 @@
                     "name": "Movement",
                     "type": "Value",
                     "id": "d9ec29fd-1a34-4691-ac8c-3b29eb51ba0d",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "CameraRotation",
-                    "type": "Value",
-                    "id": "62355399-36db-408b-bb04-139e296faa5f",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -44,9 +35,9 @@
             ],
             "bindings": [
                 {
-                    "name": "2D Vector",
+                    "name": "1D Axis",
                     "id": "f78285d9-913b-4699-8f31-e48658725b8a",
-                    "path": "2DVector",
+                    "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
@@ -55,30 +46,8 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "up",
+                    "name": "Negative",
                     "id": "7a17002d-f56a-4bb1-b554-8a95473e8636",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard;Keyboard and Mouse",
-                    "action": "Movement",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "91d4028c-076e-45a3-8ece-399eddce2168",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard;Keyboard and Mouse",
-                    "action": "Movement",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "left",
-                    "id": "b7be241f-36ef-4d67-b718-fdc0ab3cef73",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
@@ -88,8 +57,8 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "right",
-                    "id": "c50412b7-f80a-4407-b2a0-87de570ae231",
+                    "name": "Positive",
+                    "id": "91d4028c-076e-45a3-8ece-399eddce2168",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
@@ -101,77 +70,11 @@
                 {
                     "name": "",
                     "id": "71e83c0a-bf0e-4538-adeb-6a4af5360862",
-                    "path": "<Gamepad>/leftStick",
+                    "path": "<Joystick>/stick/x",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Movement",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "2D Vector",
-                    "id": "0357611d-e053-490c-98e0-f26468f3d471",
-                    "path": "2DVector",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "CameraRotation",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "up",
-                    "id": "0bbe9eda-5c1f-4315-acba-9ff14511e9ca",
-                    "path": "<Keyboard>/upArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard;Keyboard and Mouse",
-                    "action": "CameraRotation",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "0c2b7951-590f-485f-b629-1ded6bb6a20a",
-                    "path": "<Keyboard>/downArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard;Keyboard and Mouse",
-                    "action": "CameraRotation",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "left",
-                    "id": "76638c2a-23da-4a6c-9b63-91277f766b75",
-                    "path": "<Keyboard>/leftArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard;Keyboard and Mouse",
-                    "action": "CameraRotation",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "6f69db77-cdbe-49d5-8305-edb9ab6ae52e",
-                    "path": "<Keyboard>/rightArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard;Keyboard and Mouse",
-                    "action": "CameraRotation",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "82a7682d-5569-4857-9e4e-540268c468e2",
-                    "path": "<Gamepad>/rightStick",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "CameraRotation",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
