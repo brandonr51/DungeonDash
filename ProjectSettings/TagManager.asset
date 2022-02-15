@@ -10,6 +10,7 @@ TagManager:
   - Connector
   - StartingPoint
   - SpawnPoint
+  - Enemy
   layers:
   - Default
   - TransparentFX

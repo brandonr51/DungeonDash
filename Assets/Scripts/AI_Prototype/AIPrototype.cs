@@ -34,6 +34,8 @@ public class AIPrototype : MonoBehaviour
         DoMove();
         RoamPlatform();
 
+        moveDirection.x = moveSpeed;
+
         //Uses a modified variable of moveDirection to also calculate what direction the player should be facing.
         var rotationVector = new Vector3 (moveDirection.x,0,0);
 
@@ -45,14 +47,14 @@ public class AIPrototype : MonoBehaviour
 
         Debug.DrawLine(transform.position, groundChecker.position);
 
+        Vector3 movement = new Vector3(currentSpeed, moveDirection.y, 0);
+        controller.Move(movement * Time.deltaTime);
 
-        controller.Move(moveDirection * Time.deltaTime);
     }
 
     public void DoMove()
     {
         currentSpeed = Mathf.Lerp(currentSpeed, moveSpeed, step);
-        moveDirection.x = currentSpeed;
     }
 
     public void SlowDown()
@@ -71,17 +73,18 @@ public class AIPrototype : MonoBehaviour
         if (Physics.Raycast(transform.position, -Vector3.up + (moveDirection), distToGround + 1f))
         {
 
-            {
-                Debug.Log("Doing move");
-            }
-
         }
         else
         {
+            Debug.Log("No ground");
 
-                Debug.Log("Changing velocity");
-                moveSpeed = -moveSpeed;
-
+            moveSpeed = -moveSpeed;
+        }
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, moveDirection, out hit, distToGround, groundLayer))
+        {
+            Debug.Log("Wall ahead");
+            moveSpeed = -moveSpeed;
         }
     }
 }
