@@ -340,6 +340,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8695294764034082357, guid: 0297a6c57f8a4ec47a51fde7b586a6fa,
         type: 3}
+      propertyPath: playerPrefab
+      value: 
+      objectReference: {fileID: 4672680126797694115, guid: a05327222467bb4459e5b5f2a3fee4a8,
+        type: 3}
+    - target: {fileID: 8695294764034082357, guid: 0297a6c57f8a4ec47a51fde7b586a6fa,
+        type: 3}
       propertyPath: procGenObject
       value: 
       objectReference: {fileID: 990723748484480232, guid: 3a4a40a78ade3ca42aa005e39486814d,
