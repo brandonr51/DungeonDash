@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 5331718445441366497}
   - component: {fileID: 7634463089596504659}
   - component: {fileID: 2589872979237082990}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: StunCollider
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44,7 +44,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.21, y: 2.14, z: 1.21}
+  m_Size: {x: 1.21, y: 2.61, z: 1.21}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2589872979237082990
 MonoBehaviour:
@@ -259,7 +259,7 @@ GameObject:
   - component: {fileID: 5125590074992228590}
   m_Layer: 6
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -353,7 +353,7 @@ GameObject:
   - component: {fileID: 5125590075376177004}
   m_Layer: 6
   m_Name: LedgeDetection
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
