@@ -15,11 +15,9 @@ public class AIPrototype : MonoBehaviour
     public float maxMoveSpeed;
     public bool changedVelocity = false;
     public float turnSpeed = 1;
-    public SphereCollider chaseRangeCollider;
-    public float closestPlayer = Mathf.Infinity;
-    Transform tMin = null;
     public float step;
     public CharacterController controller;
+    Vector3 rotationVector;
 
     private void Start()
     {
@@ -37,7 +35,7 @@ public class AIPrototype : MonoBehaviour
         moveDirection.x = moveSpeed;
 
         //Uses a modified variable of moveDirection to also calculate what direction the player should be facing.
-        var rotationVector = new Vector3 (moveDirection.x,0,0);
+        rotationVector = new Vector3 (moveDirection.x,0,0);
 
         Quaternion rotation = Quaternion.Euler(0, 0, 0);
         if (rotationVector != Vector3.zero)
@@ -55,12 +53,6 @@ public class AIPrototype : MonoBehaviour
     public void DoMove()
     {
         currentSpeed = Mathf.Lerp(currentSpeed, moveSpeed, step);
-    }
-
-    public void SlowDown()
-    {
-        Debug.Log("SlowingDown");
-        currentSpeed = Mathf.Lerp(currentSpeed, 0, step);
     }
 
     public void TurnAround(Quaternion rotation)
@@ -81,7 +73,7 @@ public class AIPrototype : MonoBehaviour
             moveSpeed = -moveSpeed;
         }
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, moveDirection, out hit, distToGround, groundLayer))
+        if (Physics.Raycast(transform.position, rotationVector, out hit, distToGround, groundLayer))
         {
             Debug.Log("Wall ahead");
             moveSpeed = -moveSpeed;

@@ -239,12 +239,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groundChecker: {fileID: 5125590075376177004}
-  distToGround: 1
+  distToGround: 1.39
   maxMoveSpeed: 0
   changedVelocity: 0
   turnSpeed: 500
-  chaseRangeCollider: {fileID: 0}
-  closestPlayer: Infinity
   step: 0.1
   controller: {fileID: 3823387997430436333}
 --- !u!1 &5125590074992228584
