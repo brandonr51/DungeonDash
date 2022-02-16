@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3544336976232850047}
   - component: {fileID: 7317906299268969488}
   - component: {fileID: 4678714369020785327}
-  - component: {fileID: 9029709848850375897}
+  - component: {fileID: 6852048383248562922}
   m_Layer: 6
   m_Name: 2D_Player
   m_TagString: Player
@@ -38,7 +38,7 @@ Transform:
   m_Children:
   - {fileID: 5139179661907775407}
   - {fileID: 5816063900231027997}
-  - {fileID: 6069348038619082765}
+  - {fileID: 2963905456305011707}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -255,7 +255,7 @@ MonoBehaviour:
   syncInterval: 0.1
   clientAuthority: 1
   animator: {fileID: 4672680128735717449}
---- !u!114 &9029709848850375897
+--- !u!114 &6852048383248562922
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -269,7 +269,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  displayNameText: {fileID: 1181341034346062133}
+  displayNameText: {fileID: 7890228224602827459}
 --- !u!1 &5056356815021148625
 GameObject:
   m_ObjectHideFlags: 0
