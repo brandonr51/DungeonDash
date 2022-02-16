@@ -332,7 +332,7 @@ public class CCPlayerController_2D : NetworkBehaviour
 
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        Debug.Log("Direction of Character Controller collision: " + hit.moveDirection);
+        //Debug.Log("Direction of Character Controller collision: " + hit.moveDirection);
         if (hit.moveDirection.y > 0.3)
         {
             EndJumpEarly(0);
