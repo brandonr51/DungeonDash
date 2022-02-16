@@ -158,6 +158,7 @@ MonoBehaviour:
   jumpForce: 16
   currentJumpVector: 0
   inertiaSpeed: 0.035
+  stoppingSpeedThreshold: 0.01
   cameraRotateSpeed: 0
   turnSpeed: 1000
   animator: {fileID: 4672680128735717449}

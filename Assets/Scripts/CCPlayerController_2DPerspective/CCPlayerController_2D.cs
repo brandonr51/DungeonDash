@@ -36,6 +36,10 @@ public class CCPlayerController_2D : NetworkBehaviour
     [Tooltip("The inertia level on the player's movement. Values closer to 0.1 mean they'll come to a stop faster.")]
     [Range(0.01f, 0.1f)]
     public float inertiaSpeed = 0.01f;
+    [Tooltip("The speed threshold the player needs to be at in order for the sliding-stop animation to play.")]
+    [Range(0.01f, 1)]
+    public float stoppingSpeedThreshold = 0.01f;
+    private bool isStopping;
 
     [Header("Camera Control Variables")]
     public float cameraRotateSpeed;
@@ -196,7 +200,6 @@ public class CCPlayerController_2D : NetworkBehaviour
         if (currentMoveStatus != MovementStatus.Stopping && currentMoveStatus != MovementStatus.Falling && currentMoveStatus != MovementStatus.Stunned)
         {
             currentMoveStatus = MovementStatus.Moving;
-            animator.SetInteger("MovementState", (int)currentMoveStatus);
             animator.SetFloat("InputVector", (float)inputX);
         }
 
@@ -240,12 +243,8 @@ public class CCPlayerController_2D : NetworkBehaviour
         //Has the script calculate the direction the player needs to move in
         CalculateMovement();
 
-        // *** ANIMATOR STATE SETTINGS *** //
-
-        animator.SetInteger("MovementState", (int)currentMoveStatus);
-
         //Slows down animation speeds if highestInput is below the threshhold
-        if (inputX <= 0.5f && currentMoveStatus != MovementStatus.Idle && currentMoveStatus != MovementStatus.Stunned)
+        if ((inputX <= 0.5f && inputX >= 0.05f) && currentMoveStatus != MovementStatus.Idle && currentMoveStatus != MovementStatus.Stunned)
             animator.speed = inputX * 2;
         else if (inputX < 0.05)
             animator.speed = 1;
@@ -278,7 +277,17 @@ public class CCPlayerController_2D : NetworkBehaviour
 
     public void CalculateMovement()
     {
-
+        if (((rawInputVector <= 0 && inputVector > stoppingSpeedThreshold) || (-rawInputVector <= 0 && -inputVector > stoppingSpeedThreshold)) && controller.isGrounded)
+        {
+            isStopping = true;
+            animator.SetBool("isStopping", true);
+        }
+        else
+        {
+            isStopping = false;
+            animator.SetBool("isStopping", false);
+        }
+            
 
         //Sets the player's horizontal movement direction using the input vector from the Player's Input
         moveDirection.x = (inputVector * maxMoveSpeed);
@@ -300,14 +309,19 @@ public class CCPlayerController_2D : NetworkBehaviour
 
         if (controller.isGrounded)
         {
+            //tell the animator that the player is grounded
+            animator.SetBool("isGrounded", true);
+
             if (isJumping)
             {
                 moveDirection.y = jumpForce;
-                isJumping = false; //Remove me later if you try to add extended jumping
+                isJumping = false;
             }
         }
         else
         {
+            //Tell the animator that the player is not grounded
+            animator.SetBool("isGrounded", false);
             currentGravity = moveDirection - (Physics.gravity * gravityMultiplier);
             moveDirection.y -= currentGravity.y * Time.deltaTime;
         }
@@ -320,6 +334,9 @@ public class CCPlayerController_2D : NetworkBehaviour
 
         //Debug.Log(moveDirection);
         controller.Move(moveDirection * Time.deltaTime);
+
+        //Give the animator the current value of the player's vertical velocity as a percentage
+        animator.SetFloat("verticalVelocity", (moveDirection.y / (jumpForce/4)));
     }
 
     public void EndJumpEarly(float jumpEndForce)
