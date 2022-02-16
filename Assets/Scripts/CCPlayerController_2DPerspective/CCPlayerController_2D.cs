@@ -135,7 +135,7 @@ public class CCPlayerController_2D : NetworkBehaviour
 
         if (context.canceled && !controller.isGrounded)
         {
-            EndJumpEarly();
+            EndJumpEarly(6);
         }
 
         /* Possibility of having player hold down jump button for higher jump
@@ -322,19 +322,20 @@ public class CCPlayerController_2D : NetworkBehaviour
         controller.Move(moveDirection * Time.deltaTime);
     }
 
-    public void EndJumpEarly()
+    public void EndJumpEarly(float jumpEndForce)
     {
-        if (moveDirection.y < 2)
+        if (moveDirection.y < jumpEndForce)
             return;
         else
-            moveDirection.y = 2;
+            moveDirection.y = jumpEndForce;
     }
 
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.moveDirection.y > 2.2)
+        Debug.Log("Direction of Character Controller collision: " + hit.moveDirection);
+        if (hit.moveDirection.y > 0.3)
         {
-            EndJumpEarly();
+            EndJumpEarly(0);
         }
     }
 }
