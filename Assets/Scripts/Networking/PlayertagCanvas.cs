@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class PlayertagCanvas : MonoBehaviour
 {
-    [SerializeField] private Transform transformPosition;
     void Update()
     {
-        gameObject.transform.position = transformPosition.transform.position;
+        gameObject.transform.rotation = Quaternion.identity;
     }
 }
