@@ -9,7 +9,7 @@ public class DebugInBuild : MonoBehaviour
     int kChars = 700;
     void OnEnable() { Application.logMessageReceived += Log; }
     void OnDisable() { Application.logMessageReceived -= Log; }
-    void Update() { if (Keyboard.current[Key.Space].wasPressedThisFrame) { doShow = !doShow; } }
+    void Update() { if (Keyboard.current[Key.Backquote].wasPressedThisFrame) { doShow = !doShow; } }
     public void Log(string logString, string stackTrace, LogType type)
     {
         // for onscreen...
