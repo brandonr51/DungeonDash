@@ -14,7 +14,7 @@ public class CameraFollow_2D : MonoBehaviour
 
     public void Awake()
     {
-        whoSpawnedMe.GetComponentInChildren<Canvas>().worldCamera = gameObject.GetComponentInChildren<Camera>();
+        Invoke("AssignCameraToCanvas", 0.1f);
     }
 
     // Update is called once per frame
@@ -30,5 +30,10 @@ public class CameraFollow_2D : MonoBehaviour
         float posY= Mathf.Lerp(transform.position.y, whoSpawnedMe.transform.position.y, lerpSpeed);
 
         transform.position = new Vector3(posX, posY, transform.position.z);
+    }
+
+    public void AssignCameraToCanvas()
+    {
+        whoSpawnedMe.GetComponentInChildren<Canvas>().worldCamera = gameObject.GetComponentInChildren<Camera>();
     }
 }
