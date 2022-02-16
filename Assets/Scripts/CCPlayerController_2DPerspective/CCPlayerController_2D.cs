@@ -247,7 +247,7 @@ public class CCPlayerController_2D : NetworkBehaviour
         //Slows down animation speeds if highestInput is below the threshhold
         if (inputX <= 0.5f && currentMoveStatus != MovementStatus.Idle && currentMoveStatus != MovementStatus.Stunned)
             animator.speed = inputX * 2;
-        else
+        else if (inputX < 0.05)
             animator.speed = 1;
     }
 
@@ -327,7 +327,7 @@ public class CCPlayerController_2D : NetworkBehaviour
         if (moveDirection.y < jumpEndForce)
             return;
         else
-            moveDirection.y = jumpEndForce;
+            moveDirection.y /= 2;
     }
 
     public void OnControllerColliderHit(ControllerColliderHit hit)

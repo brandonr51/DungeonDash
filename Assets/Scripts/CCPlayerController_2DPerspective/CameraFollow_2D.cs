@@ -12,6 +12,11 @@ public class CameraFollow_2D : MonoBehaviour
     [Range(0.01f, 0.5f)]
     public float lerpSpeed;
 
+    public void Awake()
+    {
+        whoSpawnedMe.GetComponentInChildren<Canvas>().worldCamera = gameObject.GetComponentInChildren<Camera>();
+    }
+
     // Update is called once per frame
     void Update()
     {
